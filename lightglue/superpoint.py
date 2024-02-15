@@ -119,6 +119,8 @@ class SuperPoint(Extractor):
     required_data_keys = ["image"]
 
     def __init__(self, **conf):
+        # Allow users to override the default SuperPoint URL.
+        checkpoint_url = conf.pop("checkpoint_url", "https://github.com/cvg/LightGlue/releases/download/v0.1_arxiv/superpoint_v1.pth")  # noqa           
         super().__init__(**conf)  # Update with default configuration.
         self.relu = nn.ReLU(inplace=True)
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
@@ -141,8 +143,7 @@ class SuperPoint(Extractor):
             c5, self.conf.descriptor_dim, kernel_size=1, stride=1, padding=0
         )
 
-        url = "https://github.com/cvg/LightGlue/releases/download/v0.1_arxiv/superpoint_v1.pth"  # noqa
-        self.load_state_dict(torch.hub.load_state_dict_from_url(url))
+        self.load_state_dict(torch.hub.load_state_dict_from_url(checkpoint_url))
 
         if self.conf.max_num_keypoints is not None and self.conf.max_num_keypoints <= 0:
             raise ValueError("max_num_keypoints must be positive or None")
